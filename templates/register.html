@@ -1,0 +1,132 @@
+{% extends 'common/extends/materializecss.html' %}
+
+{% block title %} Sign up | Skystar Music Player{% endblock %}
+{% block styles %}
+{{ super() }}
+	<link rel="stylesheet" type="text/css" href="/static/css/common.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/style.css">
+	<style>
+		html, body {
+			height: 100%;
+		}
+		#main-message {
+			text-align: center;
+		}
+	</style>
+{% endblock %}
+{% block body %}
+	<div class="site-wrapper">
+		<div class="content-wrapper valign-wrapper" style="height:100%; position: relative; z-index: 9;">
+			<div class="row">
+				<div class="col">
+					<div class="card hoverable grey darken-1">
+						<form name="register" method="post" action="/proc/register" id="form_register">
+							<div class="card-content white-text">
+								<span class="card-title"><i class="material-icons">nature_people</i> 회원가입</span>
+								<div class="row">
+									<div class="input-field col s12">
+										<input id="id" name="id" type="text">
+										<label for="id">ID</label>
+										<span class="helper-text" data-error="ID length is too short." data-success="OK"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s6">
+										<input id="pw" name="pw" type="password" class="">
+										<label for="pw">Password</label>
+										<span class="helper-text" data-error="Password length is too short." data-success="OK"></span>
+									</div>
+									<div class="input-field col s6">
+										<input id="pw_check" type="password" class="">
+										<label for="pw_check">Password Check</label>
+										<span class="helper-text" data-error="Password isn't equal to it's check." data-success="OK"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-field col s12">
+										<input id="name" name="name" type="text" class="">
+										<label for="name">Name</label>
+									</div>
+								</div>
+							</div>
+							<div class="card-action">
+								<div class="input-field">
+									<div>
+										<label>
+											<span>-</span>
+										</label>
+										<a href="#" class="right" id="btn_submit">완료</a>
+										<a href="/" class="right" id="btn_cancel">취소</a>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="footer-wrapper" style="width: 100%;">
+			<footer class="page-footer grey darken-1">
+				<div class="container">
+					<div class="row">
+						<div class="col s12">
+							<h6 class="white-text">Personal Integrated Management System</h6>
+							<p class="grey-text text-lighten-4">In this system, you can manage server elements easily.</p>
+						</div>
+					</div>
+				</div>
+				<div class="footer-copyright">
+					<div class="container">
+					<a class="grey-text text-lighten-4 right" href="#!">Copyright © Bitbyul(J.H.KIM) 2020</a>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+          
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+
+$( document ).ready(function() {
+	
+	$('#btn_submit').click(function(){
+		var valid_check = true;
+		$("#pw").removeClass("valid");
+		$("#pw_check").removeClass("valid");
+		$("#id").removeClass("valid");
+		$("#pw").removeClass("invalid");
+		$("#pw_check").removeClass("invalid");
+		$("#id").removeClass("invalid");
+		
+		if($("#id").val().length < 4){
+			//$("#id").attr("data-error","Duplicated ID exist. Please enter another ID.");
+			$("#id").addClass("invalid");
+			valid_check = false;
+		}else{
+			$("#id").addClass("valid");
+		}
+		
+		if($("#pw").val().length < 7){
+			$("#pw").addClass("invalid");
+			valid_check = false;
+		}else
+			$("#pw").addClass("valid");
+		
+		if($("#pw").val() != $("#pw_check").val()){
+			$("#pw_check").addClass("invalid");
+			valid_check = false;
+		}else
+			$("#pw_check").addClass("valid");
+		
+		if(valid_check){
+			$("#form_register").submit();
+		}
+	});
+});
+</script>
+{% endblock %}

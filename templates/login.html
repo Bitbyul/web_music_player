@@ -1,0 +1,78 @@
+{% extends 'common/extends/materializecss.html' %}
+
+{% block title %} Login | Skystar Music Player{% endblock %}
+{% block styles %}
+{{ super() }}
+	<link rel="stylesheet" type="text/css" href="/static/css/common.css" />
+	<style>
+		html, body {
+			height: 100%;
+		}
+		#main-message {
+			text-align: center;
+		}
+	</style>
+{% endblock %}
+{% block body %}
+	<div class="site-wrapper">
+		<div class="content-wrapper valign-wrapper" style="height:100%; position: relative; z-index: 9;">
+			<div class="row">
+				<div class="col">
+					<div class="card hoverable grey darken-1">
+						<form name="pkcheck" method="post" action="/proc/login" id="form_pkcheck">
+							<div class="card-content white-text">
+								<span class="card-title"><i class="material-icons">lock</i> 로그인이 필요합니다.</span>
+								<p>서비스에 접속하려면 로그인해 주세요.</p>
+								<div class="input-field">
+									<i class="material-icons prefix">perm_identity</i>
+									<input id="input_id" type="text" class="text" name="id" value="">
+									<label for="input_id" class="">아이디 입력 <span style="font-size:0.7em;">ENTER ID</span></label>
+								</div>
+								<div class="input-field">
+									<i class="material-icons prefix">vpn_key</i>
+									<input id="input_pw" type="password" class="password" name="pw" value="">
+									<label for="input_pw" class="">비밀번호 입력 <span style="font-size:0.7em;">ENTER PASSWORD</span></label>
+								</div>
+							</div>
+							<div class="card-action">
+								<div class="input-field">
+									<div>
+										<label>
+											<input id="input_save" type="checkbox" class="filled-in" name="saveID"/>
+											<span>ID 저장</span>
+										</label>
+										<a href="#" class="right" id="btn_login">로그인</a>
+										<a href="#" class="right" id="btn_signup">회원가입</a>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="footer-wrapper" style="float:right; position: absolute; bottom: 10px; right: 20px; z-index: 0">
+			<p class="" style="text-align:right;">Skystar Music Player
+			<br>
+			Copyright © Bitbyul(J.H.KIM) 2020~
+			</p>
+		</div>
+		
+	</div>
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+$( document ).ready(function() {
+	$('#btn_login').click(function(){
+		$('#form_pkcheck').submit();
+	});
+	$('#btn_signup').click(function(){
+		location.href = "/register";
+	});
+});
+</script>
+{% endblock %}

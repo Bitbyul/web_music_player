@@ -1,0 +1,148 @@
+
+		<div class="modal-content">
+			<h4><i class="material-icons">add_box</i> Add Songs To Playlist</h4>
+			<div class="row">
+				<ul class="collapsible">
+					<li>
+						<div class="collapsible-header"><i class="material-icons">music_note</i>By existing SONGS</div>
+						<div class="col s12 collapsible-body card">
+							<div class="card-content center"> 
+								<span class="card-title"></span>
+								<form id="songForm" method="post" action="#" enctype="multipart/form-data">
+									<a id="btn_add_song_by_song" class="btn" href="#">SELECT SONGS</a>
+								</form>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header"><i class="material-icons">file_copy</i>By .mp3 FILE</div>
+						<div class="col s12 collapsible-body card">
+							<div class="card-content"> 
+								<span class="card-title"></span>
+								<form id="fileForm" method="post" action="#" enctype="multipart/form-data">
+									<input type="file" id="file" name="file" multiple="true"/>
+								</form>
+							</div>
+							<div class="card-action right">
+								<a id="btn_add_song_by_file" class="btn-flat" href="#">START UPLOAD</a>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="collapsible-header"><i class="material-icons">music_video</i>By youtube LINK</div>
+						<div class="col s12 collapsible-body card">
+							<div class="card-content"> 
+								<span class="card-title"></span>
+								<form id="youtubeForm" method="post" action="#" enctype="multipart/form-data">
+									<div class="input-field">
+										<input placeholder="https://www.youtube.com/watch?v=..." type="text" id="youtube-link" name="youtube-link"/>
+										<!--label for="youtube-link">LINK</label-->
+									</div>
+								</form>
+							</div>
+							<div class="card-action right">
+								<a id="btn_add_song_by_youtube" class="btn-flat" href="#">START UPLOAD</a>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div id="file_upload_progress" class="progress">
+						<div class=""></div>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+		</div>
+
+<script>
+		$('.collapsible').collapsible();
+		
+		/* option 01: existing song */
+		$('#btn_add_song_by_song').click(function(){
+			$.post(
+				"/get/allsong",
+				{ 'id': 'bitbyul' },
+				function(data) {
+					var items = [];
+					/*
+
+					*/
+					for(var i in data){
+						items.push( "<li><a class='collection-item'><i class='material-icons'>music_note</i> <span class='artist'>"+ data[i]['artist'] +"</span> - <span class='title'>"+ data[i]['title'] +"</span><span class='fileparam'>"+ data[i]['p'] +"</span></a></li>" );
+					}
+
+					$('#allsonglist').html(items); // for modalSelectSong
+
+					/* set event for each item */
+					$('#allsonglist > li').click(function(){
+						M.toast({html: $(this).find('a > .title').text(), displayLength: 1000});
+						$(this).toggleClass('active');
+					});
+				}
+			);
+			$('#modalSongAddOption').modal("close");
+			$('#modalSelectSong').modal("open");
+		})
+	
+		/* option 02: file */
+		$('#btn_add_song_by_file').click(function(){
+			var files = $('#file')[0].files;
+
+			if(!files[0]){
+				alert("Plz select a file.");
+				return;
+			}
+
+			$('#file_upload_progress > div').addClass('indeterminate');
+
+			for(var i = 0; i<files.length; i++){
+			 console.log(files[i].name+'----'+files[i].size);
+			}
+			var formData = new FormData($('#fileForm')[0]);
+			$.ajax({
+				type: "POST",
+				enctype: 'multipart/form-data',
+				url: '/proc/multipleMp3Upload',
+				data: formData,
+				processData: false,
+				contentType: false,
+				cache: false,
+				success: function(data) {
+					uploaded_data = data;
+
+					var items = [];
+					$.each(data,function(key,value) {
+						console.log('key:'+key+', value:');
+						$.each(value,function(key,value) {
+							console.log(key + ":" + value);
+						});
+						items.push( "<li id='"+key+"'><a class='collection-item'><i class='material-icons'>music_note</i><span class='uploaded_filename'>"+value['filename']+"</span></a></li>" );
+
+					});
+					$('#uploadlist').html(items); // for modalSongConfirm
+					$('#uploadlist > li').click(function(){
+						var mfilename = $(this).attr('id');
+						var filedata = uploaded_data[mfilename];
+						$('#upload_mfilename_chk').val(mfilename);
+						$('#upload_filename_chk').val(filedata['filename']);
+						$('#upload_artist_chk').val(filedata['artist']);
+						$('#upload_title_chk').val(filedata['title']);
+						if(filedata['is_image_existed']==1)
+							$('#upload_cover').attr('src',"data:image/jpg;base64," + filedata['image']);
+					});
+					$('#modalSongAddOption').modal("close");
+					$('#modalSongConfirm').modal("open");
+					$("label[for='upload_filename_chk']").addClass('active');
+					$("label[for='upload_artist_chk']").addClass('active');
+					$("label[for='upload_title_chk']").addClass('active');
+				},
+				error: function(request, status, error) {console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error)}
+			});
+		});
+		
+		/* option 03: youtube */
+		$('#btn_add_song_by_youtube').click(function() {
+			alert("미구현.");
+		});
+</script>

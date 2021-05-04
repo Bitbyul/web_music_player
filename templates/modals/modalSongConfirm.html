@@ -1,0 +1,71 @@
+
+		<div class="modal-content">
+			<h4><i class="material-icons">check</i> Confirm Songs</h4>
+			<div>
+				<ul id="uploadlist" class="collection uploadlist">
+					
+				</ul>
+			</div>
+			<div class="row center-align">
+				<form id="filecheckForm" class="col s12">
+					<div class="row">
+						<div class="input-field col s12">
+							<input id="upload_mfilename_chk" type="hidden" value="">
+							<input id="upload_filename_chk" type="text" class="validate" value="" disabled>
+							<label for="upload_filename_chk">FILENAME</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col s4"><img id="upload_cover" src="" alt="upload_cover" style="max-width: 150px; max-height: 150px;"></div>
+					</div>
+					<div class="row">
+						<div class="input-field col s6">
+							<input id="upload_artist_chk" type="text" value="">
+							<label for="upload_artist_chk">ARTIST</label>
+						</div>
+						<div class="input-field col s6">
+							<input id="upload_title_chk" type="text" value="">
+							<label for="upload_title_chk">TITLE</label>
+						</div>
+						<div class="col s12">
+							<a id="btn_modify_song" href="#!" class="right waves-effect waves-green btn-flat">Modify</a>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a id="btn_confirm_songs" href="#!" class="waves-effect waves-green btn-flat">OK</a>
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+		</div>
+
+<script>
+
+		$('#btn_modify_song').click(function() {
+			var mfilename = $('#upload_mfilename_chk').val();
+			uploaded_data[mfilename]['filename'] = $('#upload_filename_chk').val(); // uploaded_data is from main.html <- modalSongAddOption.html
+			uploaded_data[mfilename]['artist'] = $('#upload_artist_chk').val();
+			uploaded_data[mfilename]['title'] = $('#upload_title_chk').val();
+			alert("modified.");
+		});
+
+		$('#btn_confirm_songs').click(function() {
+			$.ajax({
+				type: "POST",
+				contentType: 'application/json',
+				dataType: "json",
+				url: "/proc/addSongsByMp3Upload",
+				data: JSON.stringify(uploaded_data),
+				success: function(data) {
+					uploaded_data = null;
+					alert("complete.");
+					getPlayList();
+					$('#modalSongConfirm').modal("close");
+				},
+				error: function(request, status, error) {
+					console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+					alert('ERROR.');
+				}
+			});
+		});
+</script>

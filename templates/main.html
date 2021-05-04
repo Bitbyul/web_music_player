@@ -1,0 +1,579 @@
+{% extends 'common/extends/materializecss.html' %}
+
+{% block title %} Play | Skystar Music Player{% endblock %}
+{% block styles %}
+{{ super() }}
+	<link rel="stylesheet" type="text/css" href="/static/css/common.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/style.css">
+	<style>
+		/* for large or wider scale */
+		@media all and (min-width: 992px) { 
+			#info {
+				/*height: 100%;*/
+			}
+			#musicinfo-wrapper > .row {
+				width: 100% !important;
+				height: 100% !important;
+				display: flex;
+				align-items: center;
+			}
+			#musicinfo-wrapper > .row > .col {
+				
+			}
+			#musicinfo-cover {
+				
+			}
+			#musicinfo-detail {
+				position: relative;
+			}
+			#musicinfo_artist {
+				display: block;
+			}
+			#musicinfo_title {
+				font-size: 1.4em;
+			}
+			#musicinfo_slash {
+				display: none;
+			}
+			#img_album, #img_album_reflect {
+				min-width: 50px;
+				max-width: 150px;
+				-webkit-box-reflect: below 0px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(50%, transparent) , to(rgba(250, 250, 250, 0.4)));
+			}
+			#img_album_reflect {
+				-webkit-transform: scaleY(-1);
+				transform: scaleY(-1);
+				-webkit-mask-image:-webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,0.5)), to(rgba(0,0,0,0)));
+				mask-image: linear-gradient(to top, rgba(0,0,0,0.5), rgba(0,0,0,0));
+			}
+			#img_album_reflect {
+				display: inline !important;
+			}
+			#playlist-wrapper {
+				display:flex;
+				flex-direction: column;
+				max-height: 50%;
+				position: absolute;
+				opacity: 0.8;
+			}
+			#playlist-contents {
+				max-height: 100%;
+				overflow-x: hidden;
+				overflow-y: auto;
+				margin-bottom: 10px;
+			}
+		}		
+		
+		@media all and (max-width: 992px) { 
+			#musicinfo-cover {
+				height: 100px;
+			}
+			#musicinfo-detail {
+				height: 100px;
+			}
+		}
+		span.fileparam {
+			display:none;
+		}
+		
+		#slide-out-playlist-wrapper {
+			width: 90%;
+			opacity: 0.8;
+		}
+		
+		#slide-out-playlist > li {
+			overflow: hidden;
+		}
+		
+		.playlist > li.active > a {
+			background-color: #26a69a;
+			color: #eafaf9;
+		}
+		
+		#player-wrapper > .row {
+			display: flex;
+			flex-wrap: wrap;
+		}
+		
+		
+		#musicinfo_artist {
+			
+		}
+		#musicinfo-title {
+			
+		}
+		
+		
+		#visualizer-wrapper {
+			
+		}
+		#lyrics-wrapper {
+			max-height: 100px;
+			overflow: auto !important;
+		}
+		#lyrics-wrapper > span {
+			word-wrap: break-word;
+		}
+		#lyrics-prev, #lyrics-next {
+			font-size: 0.8em;
+		}
+		
+		#lyrics-now {
+			font-size: 1.2em;
+		}
+		
+		/* for modalSelectSong */
+		#allsonglist > li.active > a {
+			background-color: #26a69a;
+			color: #eafaf9;
+		}
+	</style>
+{% endblock %}
+{% block body %}
+	<div class="site-wrapper">
+		<div class="nav-wrapper">
+			<nav class="page-nav blue-grey darken-2">
+				<a href="#" data-target="slide-out-menu" class="left sidenav-trigger hide-on-large-only"><i class="material-icons">menu</i></a>
+				<a href="#" data-target="slide-out-playlist-wrapper" id="btn_menu_playlist_open" class="right sidenav-trigger hide-on-large-only"><i class="material-icons">queue_music</i></a>
+				<a href="#" class="brand-logo">Music</a>
+				
+				<ul id="nav-mobile" class="right hide-on-med-and-down">
+					<li><b>{{current_user.name}}({{current_user.id}})</b></li>
+					<li><a href="/setting/user">User</a></li>
+					<li><a href="/setting/components">Components</a></li>
+					<li><a href="/proc/logout">Log-out</a></li>
+				</ul>
+			</nav>
+			<ul id="slide-out-menu" class="sidenav blue-grey lighten-5">
+				<li><div class="user-view">
+					<a href="#name"><span class="black-text name">{{current_user.name}}</span></a>
+					<a href="#userid"><span class="black-text userid">{{current_user.id}}</span></a>
+				</div></li>
+				<li><a href="/proc/logout" class="waves-effect"><i class="material-icons">lock_open</i>Log-out</a></li>
+				<li><div class="divider"></div></li>
+				<li><a class="subheader">Settings</a></li>
+				<li><a class="waves-effect" href="#!"><i class="material-icons">settings</i>User</a></li>
+				<li><a class="waves-effect" href="#!"><i class="material-icons">settings</i>Components</a></li>
+			</ul>
+			<ul id="slide-out-playlist-wrapper" class="sidenav">
+				<li id="slide-out-playlist-header">
+					<div class="" style="width:100%">
+						<a id="btn_slide_out_playlist_add" class="waves-effect waves-teal btn-flat modal-trigger" href="#modalSongAddOption"><i class="material-icons">add</i></a>
+						<a id="btn_slide_out_playlist_edit" class="waves-effect waves-teal btn-flat modal-trigger"><i class="material-icons">edit</i></a>
+					</div>
+				</li>
+				<li>
+					<ul id="slide-out-playlist" class="playlist">
+						Loading playlist...
+					</ul>
+				</li>
+			</ul>
+		</div>
+		
+		<div class="content-wrapper blue-grey darken-4" style="width: 100%;">
+			<div class="row">
+				<div class="col s12">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col s12 l10 offset-l1 blue-grey darken-4 white-text" id="player-wrapper">
+					<div class="row">
+						<div class="col s12 l3 xl4 center" id="musicinfo-wrapper">
+							<div class="row">
+								<div class="col s12">
+									<div class="row">
+										<div class="col s3 l12 xl4 center center-align" id="musicinfo-cover">
+											<p>
+												<img id="img_album" src="/static/img/library_music.svg" style="width:100%;"><br>
+												<img id="img_album_reflect" src="/static/img/library_music.svg" style="display:none; width:100%;">
+											</p>
+										</div>
+										<div style="overflow:hidden;" class="col s9 l12 xl8 center center-align" id="musicinfo-detail">
+												<p class="truncate">
+													<span id="musicinfo_artist"></span>
+													<span id="musicinfo_slash"> - </span>
+													<span id="musicinfo_title"></span>
+												</p>
+												<p>
+													<span class="truncate" id="musicinfo_album">Default Playlist</span>
+												</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col s12 l9 xl8 valign-wrapper" id="visualizer-wrapper">
+							<div class="row">
+								<div class="col s12">
+									<canvas id='mono-L' width="1200" height="300" style="width:100%;"></canvas>
+									<canvas id='mono-R' width="1200" height="300" style="width:100%;"></canvas>
+								</div>
+								<div class="col s12">
+								</div>
+							</div>
+						</div>
+						<div id="playlist-wrapper" class="col s12 l4 push-l7 teal hide-on-med-and-down">
+								<div id="playlist-header" class="">
+									<div id="" class="collection-header">
+										<h5>Playlist
+										<a id="btn_playlist_open" class="right aves-effect waves-teal btn-flat"><i class="material-icons">menu_open</i></a>
+										<a id="btn_playlist_add" class="right aves-effect waves-teal btn-flat modal-trigger" href="#modalSongAddOption"><i class="material-icons">add</i></a>
+										<a id="btn_playlist_edit" class="right aves-effect waves-teal btn-flat modal-trigger"><i class="material-icons">edit</i></a>
+										</h5>
+									</div>
+								</div>
+								<div id="playlist-contents" class="">
+									<ul id="playlist" class="collection scale-transition playlist">
+										Loading playlist...
+										<!--a class="collection-item"><img src="images/yuna.jpg" alt="(cv)" class="circle"> <span class="artist">로켓펀치 (Rocket Punch)</span> - <span class="title">종이별 (Paper Star)</span><span class="fileparam">paperstar</span></a-->
+									</ul>
+								</div>
+						</div>
+						<div id="lyrics-wrapper" class="col s12 l9 offset-l3 center-align">
+							<span id="lyrics-prev" class="grey-text">Skystar™ Music Player</span><br>
+							<span id="lyrics-now" class="white-text">Please, press the play button</span><br>
+							<span id="lyrics-next" class="grey-text">or select a song</span>
+						</div>
+					</div>
+					<div class="row">
+						<div id="controller-wrapper" class="col s12 blue-grey darken-4">
+							<div class="row">
+								<div class="col s12 l3 center">
+									<!--a type="button" id="btn_test" class="btn-small waves-effect waves-light">TEST</a-->
+									<a type="button" id="btn_prev" class="btn-small waves-effect waves-light">
+										<i class="material-icons">skip_previous</i>
+									</a>
+									<a type="button" id="btn_start" class="btn-small waves-effect waves-light">
+										<i class="material-icons">play_arrow</i>
+									</a>
+									<a type="button" id="btn_suspend" class="btn-small waves-effect waves-light">
+										<i class="material-icons">pause_circle_outline</i>
+									</a>
+									<a type="button" id="btn_resume" class="btn-small waves-effect waves-light">
+										<i class="material-icons">play_circle_outline</i>
+									</a>
+									<a type="button" id="btn_next" class="btn-small waves-effect waves-light">
+										<i class="material-icons">skip_next</i>
+									</a>
+								</div>
+								<div class="col s12 l9">
+									
+									<p class="range-field">
+										<label for="seekbar" id="current_time" class="left">0:00</label>
+										<label for="seekbar" id="max_time" class="right">0:00</label>
+										<input type="range" id="seekbar" min="0" max="100" value="0" style="border: none"/>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col s12">
+					<div class="row" style="height:200px">
+						<div class="col s12 center card-panel teal hide-on-med-and-down" id="info">
+							Skystar Music Player<br>
+							Copyright © Jaehyuk, Kim (Bitbyul)
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="footer-wrapper" style="width: 100%;">
+			<footer class="page-footer grey darken-1">
+				<div class="container">
+					<div class="row">
+						<div class="col s12">
+							<h6 class="white-text">Personal Integrated Management System</h6>
+							<p class="grey-text text-lighten-4">In this system, you can manage server elements easily.</p>
+						</div>
+					</div>
+				</div>
+				<div class="footer-copyright">
+					<div class="container">
+					<a class="grey-text text-lighten-4 right" href="#!">Copyright © Bitbyul(J.H.KIM) 2020</a>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+  <!-- Modal Structures -->
+
+	<!-- add songs to playlist -->
+	<div id="modalSongAddOption" class="modal"></div>
+
+	<!-- add songs to playlist -->
+	<div id="modalSongAddOption" class="modal"></div>
+
+	<!-- select songs to add -->
+	<div id="modalSelectSong" class="modal"></div>
+	
+	<!-- added songs confirm -->
+	<div id="modalSongConfirm" class="modal"></div>
+          
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+var visualizer;
+var mode_playlist = "pc"; // either mobile or pc
+var uploaded_data = null;
+
+var is_editing = false;
+	
+function playPrevSong() {
+	var selectedIndex = $(".playlist > li.now").index();
+	if(selectedIndex==-1) {
+		M.toast({html: "Fail to find selected song.", displayLength: 1500});
+		M.toast({html: "So, start from the beginning of playlist", displayLength: 1500});
+		playByIndex(0);
+	}
+	else playByIndex(selectedIndex-1);
+}
+function playNextSong() {
+	var selectedIndex = $(".playlist > li.now").index();
+	if(selectedIndex==-1) {
+		M.toast({html: "Fail to find selected song.", displayLength: 1500});
+		M.toast({html: "So, start from the beginning of playlist", displayLength: 1500});
+		playByIndex(0);
+	}
+	else playByIndex(selectedIndex+1);
+}
+function playSelectedSong() {
+	var selectedIndex = $(".playlist > li.active").index();
+	if(selectedIndex==-1) {
+		M.toast({html: "Fail to find selected song.", displayLength: 1500});
+		M.toast({html: "So, start from the beginning of playlist", displayLength: 1500});
+		playByIndex(0);
+	}
+	else playByIndex(selectedIndex);
+}
+function playByIndex(i){
+	$('#btn_start').css('display','none');
+	var p = $('.playlist > li:eq('+i+') > a > .fileparam').text();
+	if(p=="") {
+		M.toast({html: "Fail to find song.", displayLength: 1500});
+		M.toast({html: "So, start from the beginning of playlist", displayLength: 1500});
+		p = $('.playlist > li:eq(0) > a > .fileparam').text();
+		i=0;
+	}
+	visualizer.play(p);
+	$('#btn_suspend').css('display','inline-block');
+	$('#btn_resume').css('display','none');
+	$('.playlist > li').each(function(){
+		$(this).removeClass('now');
+		if(!is_editing)
+			$(this).find('a > i').text('music_note');
+		$(this).find('a > i').removeClass('deep-orange-text');
+	});
+	$('.playlist > li:eq('+i+')').addClass('now');
+	if(!is_editing)
+		$('.playlist > li:eq('+i+') > a > i').text('play_arrow')
+	$('.playlist > li:eq('+i+') > a > i').addClass('deep-orange-text');
+	/* get metadata */
+	$.get(
+		"/get/metadata",
+		{ 'p': p },
+		function(data) {
+			$('#musicinfo_artist').text(data['artist']);
+			$('#musicinfo_title').text(data['title']);
+			$('#musicinfo_album').text(data['album']);
+			if(data['is_image_existed']==1)
+				$('#img_album').attr('src',"data:image/jpg;base64," + data['image']);
+				$('#img_album_reflect').attr('src',"data:image/jpg;base64," + data['image']);
+		}
+	);
+	/* get lyric */
+	getNowSongLyrics();
+}
+
+function getNowSongLyrics(){
+	$.post(
+		"/get/lyrics",
+		{ 'artist': $(".playlist > li.now > a > .artist").text(), 'title': $(".playlist > li.now > a > .title").text() },
+		function(data) {
+			visualizer.setLyric(data);
+		}
+	);
+}
+function getPlayList(){
+	$.post(
+		"/get/playlist",
+		{ 'id': 'bitbyul', 'playlist': null },
+		function(data) {
+			var items = [];
+			
+			for(var i in data){
+				items.push( "<li><a class='collection-item'><i class='material-icons'>music_note</i> <span class='artist'>"+ data[i]['artist'] +"</span> - <span class='title'>"+ data[i]['title'] +"</span><span class='fileparam'>"+ data[i]['p'] +"</span></a></li>" );
+			}
+			
+			if(mode_playlist=="pc"){
+				$('#playlist').html(items);
+			}else if(mode_playlist=="mobile"){
+				$('#slide-out-playlist').html(items);
+			}
+			
+			/* set event for each item */
+			$('.playlist > li').click(function(){
+				M.toast({html: $(this).find('a > .title').text(), displayLength: 1000})
+				$('.playlist > li').each(function(){
+					$(this).removeClass('active');
+				});
+				$(this).toggleClass('active');
+				playSelectedSong();
+			});
+		}
+	);
+};
+
+$( document ).ready(function() {
+	/*
+	/////////////////////////////////////////
+	START loading modal data 
+	/////////////////////////////////////////
+	*/
+	
+	/* modalSongAddOption */
+	$.get( "/modal/modalSongAddOption", function( data ) { 
+		$( "#modalSongAddOption" ).html(data);
+	});
+	
+	/* modalSelectSong */
+	$.get( "/modal/modalSelectSong", function( data ) { 
+		$( "#modalSelectSong" ).html(data);
+	});
+	
+	/* modalSongConfirm */
+	$.get( "/modal/modalSongConfirm", function( data ) { 
+		$( "#modalSongConfirm" ).html(data);
+	});
+	
+	/*
+	/////////////////////////////////////////
+	END loading modal data 
+	/////////////////////////////////////////
+	*/
+	
+	$('#slide-out-menu').sidenav();
+	$('#slide-out-playlist-wrapper').sidenav({edge: 'right', draggable: true});
+	$('#modalSongAddOption').modal();
+	$('#modalSelectSong').modal();
+	$('#modalSongConfirm').modal();
+	$('#btn_menu_playlist_open').click(function(){
+		if(mode_playlist!="mobile"){
+			//$('#slide-out-playlist').html($('#playlist').html());
+			$('#slide-out-playlist').html("");
+			$('#playlist > *').appendTo('#slide-out-playlist');
+			$('#playlist').html("");
+			$('#playlist').slideUp(0);
+			mode_playlist = "mobile";
+		}
+	});
+	$('#btn_playlist_open').click(function(){
+		if(mode_playlist!="pc"){
+			//$('#playlist').html($('#slide-out-playlist').html());
+			$('#playlist').html("");
+			$('#slide-out-playlist > *').appendTo('#playlist');
+			$('#slide-out-playlist').html("");
+			mode_playlist = "pc";
+		}
+	});
+	$('#btn_playlist_add').click(function(){
+		$('#fileForm')[0].reset();
+		$('#filecheckForm')[0].reset();
+		$('#file_upload_progress > div').removeClass('indeterminate');
+	});
+	$('#btn_slide_out_playlist_add').click(function(){
+		$('#fileForm')[0].reset();
+		$('#filecheckForm')[0].reset();
+		$('#file_upload_progress > div').removeClass('indeterminate');
+	});
+	$('#btn_playlist_edit').click(function(){
+		if(!is_editing){ // edit start
+			is_editing = true;
+			$(this).find('i').text('check_circle');
+			$('.playlist > li').each(function(){
+				$(this).find('a > i').text('menu');//.removeClass('deep-orange-text');
+				$(this).find('a > i').after("<a class='delete_song' href='#'><i class='material-icons'>delete</i></a>");
+				//$(this).find('a > i').click(function(e){
+				//	e.stopPropagation(); // prevent inherited click event.
+				//	alert("dd");
+				//});
+				//$(this).removeClass('active');
+			});
+
+			$('.playlist > li > a > a.delete_song').click(function(e) {
+				var that = this;
+				e.stopPropagation(); // prevent inherited click event.
+				//alert($(this).parent().find('.fileparam').text());
+				$.post(
+					"/proc/deleteSong",
+					{ 'p': $(this).parent().find('.fileparam').text() },
+					function(data) {
+						if(data['status']==0){
+							//alert('success');
+							$(that).parent().parent().remove(); // remove from list
+						}
+					}
+				);
+			});
+		}else{ // edit end. apply.
+			is_editing = false;
+			$(this).find('i').text('edit');
+			$('.playlist > li').each(function(){
+				$(this).find('a > i').text('music_note');
+				$(this).find('a > a').remove();
+				$(this).find('a > i').off();
+			});
+		}
+	});
+	$('#btn_slide_out_playlist_edit').click(function(){
+		
+	});
+	
+  visualizer = new Visualizer();
+	visualizer.ini();
+	visualizer.endCallBack(function(){
+		M.toast({html: "Playing next song...", displayLength: 1500});
+		var nowIndex = $(".playlist > li.now").index();
+		playByIndex(nowIndex+1);
+	});
+	$('#btn_resume').css('display','none');
+	$('#btn_suspend').css('display','none');
+	$('#playlist').slideUp(0);
+	
+	$('#btn_start').click(function(){
+		playSelectedSong();
+	});
+	$('#btn_suspend').click(function(){
+		visualizer.suspend();
+		$('#btn_resume').css('display','inline-block');
+		$('#btn_suspend').css('display','none');
+	});
+	$('#btn_resume').click(function(){
+		visualizer.resume();
+		$('#btn_suspend').css('display','inline-block');
+		$('#btn_resume').css('display','none');
+	});
+	$('#btn_prev').click(function(){
+		playPrevSong();
+	});
+	$('#btn_next').click(function(){
+		playNextSong();
+	});
+	
+	$('#btn_playlist_open').click(function(){
+		$('#playlist').slideToggle();
+	});
+	
+	getPlayList();
+
+});
+</script>
+<script type="text/javascript" src="/static/js/visualizer.js"></script>
+{% endblock %}

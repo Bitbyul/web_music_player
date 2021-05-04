@@ -1,0 +1,167 @@
+{% extends 'common/extends/materializecss.html' %}
+
+{% block title %} REF | Skystar Music Player{% endblock %}
+{% block styles %}
+{{ super() }}
+	<link rel="stylesheet" type="text/css" href="/static/css/common.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/style.css">
+	<style>
+		/* for large or wider scale */
+		@media all and (min-width: 992px) { 
+			#info {
+				/*height: 100%;*/
+			}
+			#musicinfo-wrapper > .row {
+				width: 100% !important;
+				height: 100% !important;
+				display: flex;
+				align-items: center;
+			}
+			#musicinfo-wrapper > .row > .col {
+				
+			}
+			#musicinfo-cover {
+				
+			}
+			#musicinfo-detail {
+				position: relative;
+			}
+			#musicinfo_artist {
+				display: block;
+			}
+			#musicinfo_title {
+				font-size: 1.4em;
+			}
+			#musicinfo_slash {
+				display: none;
+			}
+			#img_album, #img_album_reflect {
+				min-width: 50px;
+				max-width: 150px;
+				-webkit-box-reflect: below 0px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(50%, transparent) , to(rgba(250, 250, 250, 0.4)));
+			}
+			#img_album_reflect {
+				-webkit-transform: scaleY(-1);
+				transform: scaleY(-1);
+				-webkit-mask-image:-webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,0.5)), to(rgba(0,0,0,0)));
+				mask-image: linear-gradient(to top, rgba(0,0,0,0.5), rgba(0,0,0,0));
+			}
+			#img_album_reflect {
+				display: inline !important;
+			}
+			#playlist-wrapper {
+				display:flex;
+				flex-direction: column;
+				max-height: 50%;
+				position: absolute;
+				opacity: 0.8;
+			}
+			#playlist-contents {
+				max-height: 100%;
+				overflow-x: hidden;
+				overflow-y: auto;
+				margin-bottom: 10px;
+			}
+		}		
+		
+		@media all and (max-width: 992px) { 
+			#musicinfo-cover {
+				height: 100px;
+			}
+			#musicinfo-detail {
+				height: 100px;
+			}
+		}
+		span.fileparam {
+			display:none;
+		}
+		
+		#slide-out-playlist {
+			width: 90%;
+			opacity: 0.8;
+		}
+		
+		#slide-out-playlist > li {
+			overflow: hidden;
+		}
+		
+		.playlist > li.active > a {
+			background-color: #26a69a;
+			color: #eafaf9;
+		}
+		
+		#player-wrapper > .row {
+			display: flex;
+			flex-wrap: wrap;
+		}
+		
+		
+		#musicinfo_artist {
+			
+		}
+		#musicinfo-title {
+			
+		}
+		
+		
+		#visualizer-wrapper {
+			
+		}
+		#lyrics-wrapper {
+			max-height: 100px;
+			overflow: auto !important;
+		}
+		#lyrics-wrapper > span {
+			word-wrap: break-word;
+		}
+		#lyrics-prev, #lyrics-next {
+			font-size: 0.8em;
+		}
+		
+		#lyrics-now {
+			font-size: 1.2em;
+		}
+	</style>
+{% endblock %}
+{% block body %}
+	<div class="site-wrapper">
+		
+		<div class="content-wrapper blue-grey darken-4" style="width: 100%;">
+			<div class="row">
+				<div class="col s12">
+					
+				</div>
+			</div>
+		</div>
+		
+		<div class="footer-wrapper" style="width: 100%;">
+			<footer class="page-footer grey darken-1">
+				<div class="container">
+					<div class="row">
+						<div class="col s12">
+							<h6 class="white-text">Personal Integrated Management System</h6>
+							<p class="grey-text text-lighten-4">In this system, you can manage server elements easily.</p>
+						</div>
+					</div>
+				</div>
+				<div class="footer-copyright">
+					<div class="container">
+					<a class="grey-text text-lighten-4 right" href="#!">Copyright © Bitbyul(J.H.KIM) 2020</a>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+          
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+
+$( document ).ready(function() {
+	
+});
+</script>
+{% endblock %}
